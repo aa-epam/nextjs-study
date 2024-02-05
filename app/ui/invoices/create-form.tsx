@@ -138,7 +138,9 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
           <p className={clsx(
             "mt-2 text-sm text-red-500",
               {
+                // @ts-ignore
                 'visible': Object.keys(state.errors).length,
+                // @ts-ignore
                 'hidden': !Object.keys(state.errors).length
               }
           )}>
