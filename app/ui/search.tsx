@@ -7,7 +7,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-    let debouncingTimeout = null
+    let debouncingTimeout : any = null
     function handleSearch(term: string) {
         debouncingTimeout && clearTimeout(debouncingTimeout)
         debouncingTimeout = setTimeout(() => {
