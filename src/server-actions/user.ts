@@ -46,15 +46,36 @@ const createUser = async function(prevState: State, formData: FormData) {
     });
     if (parsedCredentials.success) {
         const newUser = parsedCredentials.data as User;
-        const existenceUser = await VercelWrapper.checkUserUnique(newUser.email, newUser.name);
-        if (existenceUser) {
-            return Promise.reject('Such user is already exist');
-        } else {
-            console.log('User not exist, going forward');
-        }
-        console.log('newUser ', newUser)
+        try {
+            const existenceUser = await VercelWrapper.getUserByEmail(newUser.email);
+            if (existenceUser) return Promise.reject('Such user is already exist');
+        } catch (e) {}
+        console.log('User not exist, going forward. newUser', newUser)
         const user = await VercelWrapper.createUser(newUser);
         if (user) return user
+        return Promise.reject('Failed to create');
+    }
+    return {
+        errors: parsedCredentials.error.flatten().fieldErrors,
+        message: 'Missing Fields. Failed to create user',
+    };
+}
+
+const updateUser = async function(id, formData: FormData) {
+    const parsedCredentials = CreateAccountFormSchema.safeParse({
+        email: formData.get('email'),
+        name: formData.get('name'),
+    });
+    if (parsedCredentials.success) {
+        const newUser = parsedCredentials.data as User;
+        const existenceUser = await VercelWrapper.getUserByEmail(newUser.email);
+        if (existenceUser) {
+            const user = await VercelWrapper.createUser(newUser);
+            if (user) return user
+        } else {
+            return Promise.reject('User not found');
+        }
+        console.log('newUser ', newUser)
         return Promise.reject('Failed to create');
     }
     return {

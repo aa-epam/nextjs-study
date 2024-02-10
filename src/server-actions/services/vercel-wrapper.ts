@@ -15,27 +15,33 @@ class VercelWrapper {
             throw new Error('Failed to fetch user.');
         }
     }
-    async checkUserUnique(email: string, name: string): Promise<User | null> {
-        try {
-            const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
-            return user.rows[0];
-        } catch (e) {
-            console.error('Failed to check user unique:', e);
-            return null
-        }
-    }
 
     async createUser(user: User): Promise<any> {
         try {
             const hashedPassword = await bcrypt.hash(user.password, 10);
             return sql<User>`
-        INSERT INTO users (name, email, password)
-        VALUES (${user.name}, ${user.email}, ${hashedPassword})
-        ON CONFLICT (id) DO NOTHING;
-        `;
+                INSERT INTO users (name, email, password)
+                VALUES (${user.name}, ${user.email}, ${hashedPassword})
+                ON CONFLICT (id) DO NOTHING;
+            `;
         } catch (e) {
             console.error('Failed to set user.', e);
             throw new Error('Failed to set user.');
+        }
+    }
+
+    async updateUser(id: string, user: User): Promise<any> {
+        try {
+            const result = await sql<User>`
+                UPDATE users
+                SET name = ${user.name}, email = ${user.email}
+                WHERE id = ${id}
+                RETURNING *
+            `;
+            return result.rows[0]
+        } catch (e) {
+            console.error('Failed to update user.', e);
+            throw new Error('Failed to update user.');
         }
     }
 

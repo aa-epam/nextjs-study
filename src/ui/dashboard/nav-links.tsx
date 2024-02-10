@@ -19,6 +19,8 @@ const links = [
     icon: DocumentDuplicateIcon,
   },
   { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
+  { name: 'ManageAccount - Client', href: '/dashboard/account-via-client', icon: UserGroupIcon },
+  { name: 'ManageAccount - Server', href: '/dashboard/account-via-server-session', icon: UserGroupIcon },
 ];
 
 export default function NavLinks() {

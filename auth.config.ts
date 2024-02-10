@@ -1,19 +1,34 @@
-import type { NextAuthConfig } from 'next-auth';
-
 export const authConfig = {
     pages: {
         signIn: '/login',
     },
     callbacks: {
         // @ts-ignore
-        authorized({ auth, request: { nextUrl } }) {
+        async jwt({ token, user, trigger, session }){
+            if (trigger === "update") {
+                token.name = session.name
+            }
+            return token
+        },
+        async session({ session, token }){
+            session.user.id = token.sub
+            return Promise.resolve(session)
+        },
+        authorized({ auth, request }) {
             const isLoggedIn = !!auth?.user;
-            const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
-            if (isOnDashboard) {
-                if (isLoggedIn) return true;
+            const isOnDashboard = request.nextUrl.pathname.startsWith('/dashboard');
+            const isOnLogin = request.nextUrl.pathname.startsWith('/login');
+            console.log('========================')
+            console.log('isLoggedIn >>>>>>', isLoggedIn)
+            console.log('isOnDashboard >>>>>>', isOnDashboard)
+            console.log('nextUrl >>>>>>', request.nextUrl.toString())
+            console.log('newUrl >>>>>>', new URL('/dashboard', request.nextUrl).toString())
+            console.log('========================')
+            if (isLoggedIn) {
+                if (isOnLogin) return Response.redirect(new URL('/dashboard', request.nextUrl));
+                return true;
+            } else {
                 return false; // Redirect unauthenticated users to login page
-            } else if (isLoggedIn) {
-                return Response.redirect(new URL('/dashboard', nextUrl));
             }
             return true;
         },
