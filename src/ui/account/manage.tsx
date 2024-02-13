@@ -12,10 +12,12 @@ export default function Manage({ user, update }) {
                 email: newEmail || user.email,
                 name: newName || user.name
             }
-            SessionService.updateUser(updateUserParams).then(data => {
+            let promise = SessionService[update ? 'updateUser' : 'updateUser2'](updateUserParams)
+            promise.then(data => {
                 console.log(data)
-                update({...user, name: updateUserParams.name})
-            }).catch(e => {
+                if (update) update({name: updateUserParams.name})
+            })
+                .catch(e => {
                 console.error(e)
             }).finally(() => {
                 changeNewEmail('')

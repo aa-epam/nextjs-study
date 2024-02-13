@@ -8,10 +8,12 @@ export const authConfig = {
             if (trigger === "update") {
                 token.name = session.name
             }
+            // console.log('jwt', token, user, trigger, session)
             return token
         },
         async session({ session, token }){
             session.user.id = token.sub
+            // console.log('session', session, token)
             return Promise.resolve(session)
         },
         authorized({ auth, request }) {

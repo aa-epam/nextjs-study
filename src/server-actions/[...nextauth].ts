@@ -36,6 +36,7 @@ const signIn = sessionHandler.signIn
 const GET = sessionHandler.handlers.GET
 const POST = sessionHandler.handlers.POST
 const signOut = sessionHandler.signOut
+const update  = sessionHandler.unstable_update
 
-export { auth, signIn, signOut, GET, POST }
+export { auth, signIn, signOut, GET, POST, update  }
 
