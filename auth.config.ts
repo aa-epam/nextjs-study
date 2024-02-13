@@ -24,10 +24,11 @@ export const authConfig = {
             console.log('isLoggedIn >>>>>>', isLoggedIn)
             console.log('isOnDashboard >>>>>>', isOnDashboard)
             console.log('nextUrl >>>>>>', request.nextUrl.toString())
-            console.log('newUrl >>>>>>', new URL('/dashboard', request.nextUrl).toString())
-            console.log('========================')
             if (isLoggedIn) {
-                if (isOnLogin) return Response.redirect(new URL('/dashboard', request.nextUrl));
+                if (isOnLogin){
+                    console.log('newUrl >>>>>>', new URL('/dashboard', request.nextUrl).toString())
+                    return Response.redirect(new URL('/dashboard', request.nextUrl));
+                }
                 return true;
             } else {
                 return false; // Redirect unauthenticated users to login page

@@ -2,10 +2,13 @@
 import { lusitana, lusitanaLight } from "@/src/ui/fonts";
 import SessionService from "@/src/client-services/session-service";
 import {useState} from "react";
+import clsx from 'clsx';
+import Modal from "@/src/ui/modal/modal";
 
 export default function Manage({ user, update }) {
     let [newEmail, changeNewEmail] = useState('')
     let [newName, changeNewName] = useState('')
+    let [modal, changeModalVisibility] = useState(false)
     const submitUpdate = () => {
         if ((newEmail && newEmail !== user.email) || (newName && newName !== user.name)) {
             const updateUserParams = {
@@ -26,7 +29,15 @@ export default function Manage({ user, update }) {
         }
     }
     return (
-        <>
+        <div>
+            <div className={
+                clsx('fixed top-0 left-0', {
+                    'visible': modal,
+                    'invisible': !modal
+                })
+            }>
+                <Modal close={changeModalVisibility}/>
+            </div>
             <div className='text-xl grid grid-cols-3 w-1/2'>
                 <div className={`${lusitana.className}`}>Email</div>
                 <div className={`${lusitanaLight.className}`}>{user.email}</div>
@@ -66,10 +77,11 @@ export default function Manage({ user, update }) {
             </div>
             <div className='w-1/2 max-w-[400px]'>
                 <button
+                    onClick={() => changeModalVisibility(true)}
                     className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 ">
                     <div className="hidden md:block">Delete account</div>
                 </button>
             </div>
-        </>
+        </div>
         )
 }

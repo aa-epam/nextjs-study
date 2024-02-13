@@ -16,6 +16,16 @@ class VercelWrapper {
         }
     }
 
+    async deleteUser(id: string) {
+        try {
+            await sql`DELETE FROM users WHERE id = ${id}`;
+        } catch (e) {
+            console.error('Failed to Delete User.', e);
+            throw new Error('Failed to Delete User.');
+        }
+    }
+
+
     async createUser(user: User): Promise<any> {
         try {
             const hashedPassword = await bcrypt.hash(user.password, 10);
