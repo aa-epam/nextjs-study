@@ -1,10 +1,13 @@
 'use client'
 import { lusitana, lusitanaLight } from "@/src/ui/fonts";
 import {useRouter} from "next/navigation";
+import { signOut } from "next-auth/react";
+import SessionService from "@/src/client-services/session-service";
 
 export default function Modal({ close }) {
     const closeModal = () => close()
     const router = useRouter()
+
     return (
         <div onClick={closeModal}
             className='flex w-screen h-screen flex-row justify-center items-center bg-neutral-300/80'>
@@ -21,8 +24,18 @@ export default function Modal({ close }) {
                         <button
                             onClick={
                                 () => {
-                                    router.push('/api/session/user/delete')
-                                    close()
+                                    // Variant 1 - deleting account with signing out on server side
+                                    // all done in one call to server. Redirect url may be passed in query params
+                                    // router.push('/api/session/user/delete')
+                                    // close()
+
+                                    // Variant 2 - delete account with signing out on client side
+                                    // all done in 2 calls - 1st - for cleaning DB, second - for signout
+                                   SessionService.deleteUser().then(() => {
+                                       signOut({ callbackUrl: '/login' }).then(() => {
+                                           close()
+                                       })
+                                   })
                                 }
                             }
                             className="h-[48px] w-full items-center justify-center rounded-md bg-red-500 hover:bg-cyan-600 hover:text-slate-50 mb-[20px]">
