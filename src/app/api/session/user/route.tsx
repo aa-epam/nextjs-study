@@ -1,7 +1,6 @@
 "use server"
-import {auth, POST, signOut} from "@/src/server-actions/[...nextauth]"
+import { auth, POST } from "@/src/server-actions/[...nextauth]"
 import VercelWrapper from "@/src/server-actions/services/vercel-wrapper";
-import {redirect} from "next/navigation";
 
 export const PUT = auth(async(req) => {
     // req.auth

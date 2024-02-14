@@ -1,35 +1,52 @@
 'use client'
-import { lusitana, lusitanaLight } from "@/src/ui/fonts";
-import SessionService from "@/src/client-services/session-service";
-import {useState} from "react";
+import {memo, useEffect, useState} from "react";
 import clsx from 'clsx';
 import Modal from "@/src/ui/modal/modal";
+import ChangeCredentials from "@/src/ui/account/change-credentials";
+import ChangeUserInfo from "@/src/ui/account/change-user-info";
+import SessionService from "@/src/client-services/session-service";
 
-export default function Manage({ user, update }) {
-    let [newEmail, changeNewEmail] = useState('')
-    let [newName, changeNewName] = useState('')
+// eslint-disable-next-line react/display-name
+const Manage = memo(function({ user }) {
+    let update = user.update
+    let [key1, reset1] = useState(1)
+    let [key2, reset2] = useState(0)
+    let [source, setSource] = useState('')
     let [modal, changeModalVisibility] = useState(false)
-    const submitUpdate = () => {
-        if ((newEmail && newEmail !== user.email) || (newName && newName !== user.name)) {
-            const updateUserParams = {
-                email: newEmail || user.email,
-                name: newName || user.name
+    useEffect(() => {
+        switch(source) {
+            case 'creds':
+                reset1(key1 + 1);
+                setSource('')
+                break
+            case 'info':
+                reset2(key2 - 1);
+                setSource('')
+                break
+            default:
+                break
+        }
+    }, [user])
+
+    const submitUpdate = (source, updateUserParams) => {
+        if ((updateUserParams.email && updateUserParams.email !== user.email) || (updateUserParams.name && updateUserParams.name !== user.name)) {
+            setSource(source)
+            updateUserParams = {
+                email: updateUserParams.email || user.email,
+                name: updateUserParams.name || user.name
             }
             let promise = SessionService[update ? 'updateUser' : 'updateUser2'](updateUserParams)
             promise.then(data => {
                 console.log(data)
                 if (update) update({name: updateUserParams.name})
             })
-                .catch(e => {
+            .catch(e => {
                 console.error(e)
-            }).finally(() => {
-                changeNewEmail('')
-                changeNewName('')
             })
         }
     }
     return (
-        <div>
+        <div className='flex direction-row'>
             <div className={
                 clsx('fixed top-0 left-0', {
                     'visible': modal,
@@ -38,43 +55,8 @@ export default function Manage({ user, update }) {
             }>
                 <Modal close={changeModalVisibility}/>
             </div>
-            <div className='text-xl grid grid-cols-3 w-1/2'>
-                <div className={`${lusitana.className}`}>Email</div>
-                <div className={`${lusitanaLight.className}`}>{user.email}</div>
-                <div>
-                    <input
-                        id="newEmail"
-                        name="newEmail"
-                        type="email"
-                        value={newEmail}
-                        onChange={(e) => changeNewEmail(e.target.value)}
-                        placeholder="Enter new email"
-                        className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                    />
-                </div>
-            </div>
-            <div className='text-xl grid grid-cols-3 w-1/2'>
-                <div className={`${lusitana.className}`}>Name</div>
-                <div className={`${lusitanaLight.className}`}>{user.name}</div>
-                <div>
-                    <input
-                        id="newName"
-                        name="newName"
-                        type="text"
-                        value={newName}
-                        onChange={(e) => changeNewName(e.target.value)}
-                        placeholder="Enter new name"
-                        className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                    />
-                </div>
-            </div>
-            <div className='w-1/2 max-w-[400px]'>
-                <button
-                    onClick={submitUpdate}
-                    className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 ">
-                    <div className="hidden md:block" >Change</div>
-                </button>
-            </div>
+            <ChangeCredentials user = { user } submit={submitUpdate}/>
+            <ChangeUserInfo  user = { user } submit={submitUpdate}/>
             <div className='w-1/2 max-w-[400px]'>
                 <button
                     onClick={() => changeModalVisibility(true)}
@@ -84,4 +66,5 @@ export default function Manage({ user, update }) {
             </div>
         </div>
         )
-}
+})
+export default Manage
