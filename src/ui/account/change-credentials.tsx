@@ -1,17 +1,30 @@
 import {useEffect, useState} from "react";
 import AccountManageRow from "@/src/ui/account/account-manage-row";
+import clsx from "clsx";
 
 export default function ChangeCredentials ({ user, submit }) {
+    let [email, setEmail] = useState('')
+    let [password, setPassword] = useState('')
+    let [password2, setPassword2] = useState('')
+    let [error, setError] = useState('')
+    const submitUpdate = (e) => {
+        e.stopPropagation()
+        if ((password || password2) && password !== password2) {
+            setError('Passwords mismatch')
+        } else if (user.email === email && !password && !password2) {
+            setError('Nothing changed')
+        } else {
+            submit('creds', { email: email, password: password })
+        }
+    }
     useEffect(() => {
         setEmail(user.email)
     }, [user])
 
-    let [email, setEmail] = useState('')
-    let [password, setPassword] = useState('')
-    let [password2, setPassword2] = useState('')
-    const submitUpdate = () => {
-        submit('creds', { email: email, password: password, password2: password2 })
-    }
+    useEffect(() => {
+        if (error) setError('')
+    }, [email, password, password2])
+
     let inputs = [
         { name: 'email', type: 'email', label: 'Enter new email', value: email, update: setEmail },
         { name: 'password', type: 'password', label: 'Enter new password', value: password, update: setPassword },
@@ -34,6 +47,11 @@ export default function ChangeCredentials ({ user, submit }) {
                     )
                 })
             }
+            <div className= {clsx('text-sm text-right text-red-400 mt-[-10px] pb-[10px]', {
+                'invisible': !error
+            })}>
+                <span>Error: {error}</span>
+            </div>
             <div className='max-w-[400px]'>
                 <button
                     onClick={submitUpdate}

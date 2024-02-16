@@ -5,6 +5,7 @@ import Modal from "@/src/ui/modal/modal";
 import ChangeCredentials from "@/src/ui/account/change-credentials";
 import ChangeUserInfo from "@/src/ui/account/change-user-info";
 import SessionService from "@/src/client-services/session-service";
+import {signOut} from "next-auth/react";
 
 // eslint-disable-next-line react/display-name
 const Manage = memo(function({ user }) {
@@ -29,21 +30,21 @@ const Manage = memo(function({ user }) {
     }, [user])
 
     const submitUpdate = (source, updateUserParams) => {
-        if ((updateUserParams.email && updateUserParams.email !== user.email) || (updateUserParams.name && updateUserParams.name !== user.name)) {
-            setSource(source)
-            updateUserParams = {
-                email: updateUserParams.email || user.email,
-                name: updateUserParams.name || user.name
+        setSource(source)
+        if (!updateUserParams.email) updateUserParams.email = user.email
+        if (!updateUserParams.name) updateUserParams.name = user.name
+        let promise = SessionService[update ? 'updateUser' : 'updateUser2'](updateUserParams)
+        promise.then(data => {
+            console.log(data.body)
+            if (data.body.needSignOut) {
+                signOut({ callbackUrl: '/login' })
+            } else {
+                update(updateUserParams)
             }
-            let promise = SessionService[update ? 'updateUser' : 'updateUser2'](updateUserParams)
-            promise.then(data => {
-                console.log(data)
-                if (update) update({name: updateUserParams.name})
-            })
-            .catch(e => {
-                console.error(e)
-            })
-        }
+        })
+        .catch(e => {
+            console.error(e)
+        })
     }
     return (
         <div className='flex direction-row'>

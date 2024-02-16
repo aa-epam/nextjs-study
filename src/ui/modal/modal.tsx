@@ -32,7 +32,7 @@ export default function Modal({ close }) {
                                     // Variant 2 - delete account with signing out on client side
                                     // all done in 2 calls - 1st - for cleaning DB, second - for signout
                                    SessionService.deleteUser().then(() => {
-                                       signOut({ callbackUrl: '/login' }).then(() => {
+                                       signOut({ callbackUrl: '/login' }).finally(() => {
                                            close()
                                        })
                                    })

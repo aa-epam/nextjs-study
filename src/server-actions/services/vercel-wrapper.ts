@@ -40,11 +40,12 @@ class VercelWrapper {
         }
     }
 
-    async updateUser(id: string, user: User): Promise<any> {
+    async updateUser(id: string, user: User, hashedPassword: string): Promise<any> {
         try {
+            if (user.password)  hashedPassword = await bcrypt.hash(user.password, 10);
             const result = await sql<User>`
                 UPDATE users
-                SET name = ${user.name}, email = ${user.email}
+                SET name = ${user.name}, email = ${user.email}, password = ${hashedPassword}
                 WHERE id = ${id}
                 RETURNING *
             `;
